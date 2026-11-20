@@ -6,6 +6,7 @@ Reads VAPI_API_KEY (and VAPI_ASSISTANT_ID, if present) from .env.
 
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -137,7 +138,8 @@ def call_api(method, url, api_key, body):
     )
     try:
         with urllib.request.urlopen(request) as response:
-            return json.loads(response.read())
+            raw = response.read()
+            return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as error:
         raise SystemExit(f"Vapi error {error.code}: {error.read().decode()}")
 
@@ -160,26 +162,39 @@ def main():
         save_env_value("VAPI_ASSISTANT_ID", assistant_id)
         print(f"Created assistant {assistant_id} (saved to .env)")
 
-    # The Vapi dashboard keeps its own draft copy and sends it with test
-    # calls. Keep that draft in step so it never runs an old prompt.
-    drafts = call_api("GET", f"{API_URL}/{assistant_id}/draft", api_key, None)
-    for draft in drafts.get("results", []):
-        draft_url = f"{API_URL}/{assistant_id}/draft/{draft['id']}"
-        try:
-            call_api("PATCH", draft_url, api_key, assistant)
-            print("Updated the dashboard draft")
-        except SystemExit as error:
-            if "404" not in str(error):
-                raise
-            print("Dashboard draft was already gone, skipped")
+    # The Vapi dashboard keeps its own "Draft" copy of the assistant. When a
+    # dashboard tab is open while the assistant changes, the tab saves its old
+    # copy as a draft and sends it with every test call. Delete all drafts so
+    # the dashboard loads the published version instead.
+    delete_drafts(assistant_id, api_key)
+    time.sleep(10)
+    if delete_drafts(assistant_id, api_key):
+        print("WARNING: an open Vapi dashboard tab re-saved an old draft.")
+        print("Close the Mira tab in the dashboard, then run this script again.")
 
+    # Check what the dashboard will load: no draft, and the published
+    # version matching the file.
     expected_prompt = assistant["model"]["messages"][0]["content"]
     live = call_api("GET", f"{API_URL}/{assistant_id}", api_key, None)
     check(live, assistant, expected_prompt, "Live assistant")
+    version = live.get("latestVersion")
+    if version:
+        published = call_api("GET", f"{API_URL}/{assistant_id}/versions/{version}", api_key, None)
+        check(published.get("data", published), assistant, expected_prompt, f"Published version {version}")
+    if call_api("GET", f"{API_URL}/{assistant_id}/draft", api_key, None).get("results"):
+        raise SystemExit("A dashboard draft still exists; the dashboard would use it")
+    print("No dashboard draft left")
+    print(f"Opening line: {live['firstMessage']}")
+    print("Reload the Vapi dashboard page before testing.")
+
+
+def delete_drafts(assistant_id, api_key):
     drafts = call_api("GET", f"{API_URL}/{assistant_id}/draft", api_key, None)
-    for draft in drafts.get("results", []):
-        check(draft, assistant, expected_prompt, "Dashboard draft")
-    print(f"Version {live.get('latestVersion')}. Reload the Vapi dashboard before testing.")
+    found = drafts.get("results", [])
+    for draft in found:
+        call_api("DELETE", f"{API_URL}/{assistant_id}/draft/{draft['id']}", api_key, None)
+        print(f"Deleted dashboard draft {draft['id']}")
+    return bool(found)
 
 
 def check(found, assistant, expected_prompt, label):
