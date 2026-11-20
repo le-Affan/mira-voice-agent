@@ -20,12 +20,17 @@ DEMO_CUSTOMER_NAME = "Rahul"
 # Voice: Cartesia, Hindi female voice (handles Hinglish in Roman script).
 VOICE_ID = "95d51f79-c397-46f9-b49a-23763d3eaa2d"  # Arushi - Hinglish Speaker
 
-# Vapi defaults plus common Hindi equivalents.
+# Short replies that should never cut Mira off. Vapi defaults plus Hindi
+# equivalents (Roman and Devanagari, since the transcriber may return either)
+# and common doubled forms, because two-word replies would otherwise count.
 ACKNOWLEDGEMENT_PHRASES = [
     "i understand", "i see", "i got it", "right", "okay", "ok", "sure",
     "alright", "got it", "yeah", "yes", "uh-huh", "mm-hmm", "mhmm", "hmm",
-    "haan", "haan ji", "ji", "achha", "accha", "theek hai",
-    "हां", "हाँ", "हाँ जी", "जी", "अच्छा", "ठीक है", "हम्म",
+    "yes yes", "okay okay", "ok ok", "yeah yeah", "right right", "yes okay",
+    "haan", "haan ji", "ji", "ji haan", "achha", "accha", "theek hai",
+    "haan haan", "achha achha", "ok ji", "theek hai ji",
+    "हां", "हाँ", "हाँ जी", "जी", "जी हाँ", "अच्छा", "ठीक है", "हम्म",
+    "हाँ हाँ", "अच्छा अच्छा", "ओके", "ओके जी",
 ]
 INTERRUPTION_PHRASES = [
     "stop", "wait", "hold", "no", "nope", "but", "actually", "enough",
@@ -92,11 +97,12 @@ def build_assistant():
         "silenceTimeoutSeconds": 30,
         # Filter background noise and background voices (Krisp).
         "backgroundSpeechDenoisingPlan": {"smartDenoisingPlan": {"enabled": True}},
-        # Interruptions: short acknowledgements don't cut Mira off, clear
-        # interruptions ("stop", "ruko", "nahi") do. Hindi in both scripts,
-        # since the transcriber may return Devanagari.
+        # Interruptions: the customer must say at least two words to stop
+        # Mira, so one-word replies ("yes", "haan", "hmm") never cut her off.
+        # Interruption phrases ("stop", "wait", "ruko", "nahi") still stop
+        # her at once, and listed acknowledgements never do.
         "stopSpeakingPlan": {
-            "numWords": 1,
+            "numWords": 2,
             "voiceSeconds": 0.3,
             "backoffSeconds": 1,
             "acknowledgementPhrases": ACKNOWLEDGEMENT_PHRASES,
