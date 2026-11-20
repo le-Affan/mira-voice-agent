@@ -1,0 +1,63 @@
+{
+  "agent_name": "Mira",
+  "customer_name": "Rahul",
+  "first_message": "Hello, नमस्ते! मैं Mira बोल रही हूँ, Mahima Palm Springs की तरफ़ से। क्या मैं {customer_name} जी से बात कर रही हूँ?",
+  "sign_off": "Have a nice day",
+
+  "llm": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "temperature": 0.3,
+    "max_tokens": 250
+  },
+
+  "voice": {
+    "provider": "azure",
+    "voice_id": "en-IN-AnanyaNeural",
+    "language": "en-IN",
+    "speed": 1.0
+  },
+
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-3",
+    "language": "multi",
+    "endpointing_ms": 300
+  },
+
+  "transcriber_bolna": {
+    "provider": "soniox",
+    "model": "stt-rt-v5",
+    "language": "hi",
+    "keywords": "Mahima Palm Springs, Tonk Road, Jaipur, Chokhi Dhani, Radha Swami Satsang Beas, site visit"
+  },
+
+  "call": {
+    "max_duration_seconds": 300,
+    "silence_check_seconds": 10,
+    "silence_hangup_seconds": 20,
+    "interruption_min_words": 2,
+    "noise_cancellation": true,
+    "voicemail_detection": true,
+    "recording": true
+  },
+
+  "silence_check_prompt": "The customer has been silent. Ask once, in the current language mode, whether they can hear you (the silence line from your instructions). One short sentence.",
+  "silence_check_message": "Hello? क्या आप मुझे सुन पा रहे हैं? Can you hear me?",
+  "silence_end_prompt": "The customer is still silent. Say the unclear line closing from your instructions, in the current language mode, ending with: Have a nice day.",
+
+  "hangup_check_prompt": "You decide whether this phone call is over. The call is over only if the assistant's most recent message ends with the sign-off \"Have a nice day\". In every other case, including when the customer has just said yes, okay, thank you or bye, the call is not over.",
+
+  "acknowledgement_phrases": [
+    "i understand", "i see", "right", "okay", "ok", "sure", "alright", "got it",
+    "yeah", "yes", "uh-huh", "mm-hmm", "mhmm", "hmm",
+    "yes yes", "okay okay", "ok ok", "yeah yeah", "right right",
+    "haan", "haan ji", "ji", "ji haan", "achha", "accha", "theek hai", "haan haan", "achha achha",
+    "हां", "हाँ", "हाँ जी", "जी", "जी हाँ", "अच्छा", "ठीक है", "हम्म", "हाँ हाँ", "अच्छा अच्छा", "ओके"
+  ],
+  "interruption_phrases": [
+    "stop", "wait", "hold on", "no", "nope", "but", "actually", "enough",
+    "ruko", "ruk", "nahi", "nahin", "suniye", "ek minute",
+    "रुको", "रुकिए", "नहीं", "सुनिए", "एक मिनट"
+  ]
+}
