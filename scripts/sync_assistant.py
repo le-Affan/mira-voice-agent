@@ -60,7 +60,9 @@ def save_env_value(key, value):
 
 def build_assistant():
     prompt = PROMPT_FILE.read_text().replace("{{customer_name}}", DEMO_CUSTOMER_NAME)
-    greeting = re.search(r'Mira: "(Hello.*?)"', prompt).group(1)
+    # The greeting is the first Mira line under "Step One: Greeting Message".
+    step_one = prompt.split("Step One: Greeting Message", 1)[1]
+    greeting = re.search(r'Mira: "(.*?)"', step_one).group(1)
     return {
         "name": "Mira",
         "firstMessage": greeting,
@@ -158,12 +160,34 @@ def main():
         save_env_value("VAPI_ASSISTANT_ID", assistant_id)
         print(f"Created assistant {assistant_id} (saved to .env)")
 
+    # The Vapi dashboard keeps its own draft copy and sends it with test
+    # calls. Keep that draft in step so it never runs an old prompt.
+    drafts = call_api("GET", f"{API_URL}/{assistant_id}/draft", api_key, None)
+    for draft in drafts.get("results", []):
+        draft_url = f"{API_URL}/{assistant_id}/draft/{draft['id']}"
+        try:
+            call_api("PATCH", draft_url, api_key, assistant)
+            print("Updated the dashboard draft")
+        except SystemExit as error:
+            if "404" not in str(error):
+                raise
+            print("Dashboard draft was already gone, skipped")
+
+    expected_prompt = assistant["model"]["messages"][0]["content"]
     live = call_api("GET", f"{API_URL}/{assistant_id}", api_key, None)
-    live_prompt = live["model"]["messages"][0]["content"]
-    if live_prompt != assistant["model"]["messages"][0]["content"]:
-        raise SystemExit("Live prompt does NOT match prompt/mira_prompt.md")
-    print(f"Live prompt matches the file (version {live.get('latestVersion')})")
-    print("Reload the Vapi dashboard page before testing.")
+    check(live, assistant, expected_prompt, "Live assistant")
+    drafts = call_api("GET", f"{API_URL}/{assistant_id}/draft", api_key, None)
+    for draft in drafts.get("results", []):
+        check(draft, assistant, expected_prompt, "Dashboard draft")
+    print(f"Version {live.get('latestVersion')}. Reload the Vapi dashboard before testing.")
+
+
+def check(found, assistant, expected_prompt, label):
+    prompt_ok = found["model"]["messages"][0]["content"] == expected_prompt
+    greeting_ok = found.get("firstMessage") == assistant["firstMessage"]
+    if not (prompt_ok and greeting_ok):
+        raise SystemExit(f"{label} does NOT match prompt/mira_prompt.md")
+    print(f"{label} matches the file")
 
 
 if __name__ == "__main__":
