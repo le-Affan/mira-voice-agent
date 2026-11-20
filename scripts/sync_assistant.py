@@ -125,7 +125,7 @@ def build_assistant():
 def call_api(method, url, api_key, body):
     request = urllib.request.Request(
         url,
-        data=json.dumps(body).encode(),
+        data=json.dumps(body).encode() if body is not None else None,
         method=method,
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -154,8 +154,16 @@ def main():
         print(f"Updated assistant {assistant_id}")
     else:
         result = call_api("POST", API_URL, api_key, assistant)
-        save_env_value("VAPI_ASSISTANT_ID", result["id"])
-        print(f"Created assistant {result['id']} (saved to .env)")
+        assistant_id = result["id"]
+        save_env_value("VAPI_ASSISTANT_ID", assistant_id)
+        print(f"Created assistant {assistant_id} (saved to .env)")
+
+    live = call_api("GET", f"{API_URL}/{assistant_id}", api_key, None)
+    live_prompt = live["model"]["messages"][0]["content"]
+    if live_prompt != assistant["model"]["messages"][0]["content"]:
+        raise SystemExit("Live prompt does NOT match prompt/mira_prompt.md")
+    print(f"Live prompt matches the file (version {live.get('latestVersion')})")
+    print("Reload the Vapi dashboard page before testing.")
 
 
 if __name__ == "__main__":
