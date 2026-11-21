@@ -4,6 +4,7 @@ Usage:
     python3 scripts/sync.py                     # platform from PLATFORM in .env (default: vapi)
     python3 scripts/sync.py --platform bolna    # override the platform for one run
     python3 scripts/sync.py --check             # only check the live agent, change nothing
+    python3 scripts/sync.py --all               # every agent: Vapi primary, spare and third, then Bolna
 
 The prompt comes from prompt/mira_prompt.md and every other setting from config/settings.json.
 Keys and agent IDs live in .env (see .env.example).
@@ -156,10 +157,11 @@ def vapi_assistant(settings, prompt, first_message):
 
 
 def vapi_account(env):
-    """Pick the Vapi key: VAPI_ACCOUNT=primary|spare|auto (auto falls back to the spare key on failure)."""
+    """Pick the Vapi key: VAPI_ACCOUNT=primary|spare|third|auto (auto falls back to the spare key on failure)."""
     accounts = {
         "primary": (env.get("VAPI_API_KEY"), "VAPI_ASSISTANT_ID"),
         "spare": (env.get("VAPI_API_KEY2"), "VAPI_ASSISTANT_ID2"),
+        "third": (env.get("VAPI_API_KEY3"), "VAPI_ASSISTANT_ID3"),
     }
     choice = env.get("VAPI_ACCOUNT", "auto").lower()
     if choice in accounts:
@@ -378,9 +380,18 @@ def main():
     parser = argparse.ArgumentParser(description="Sync Mira to Vapi or Bolna.")
     parser.add_argument("--platform", choices=["vapi", "bolna"], help="override PLATFORM from .env")
     parser.add_argument("--check", action="store_true", help="only check the live agent")
+    parser.add_argument("--all", action="store_true", help="every configured agent: Vapi primary, spare, third, then Bolna")
     args = parser.parse_args()
 
     env = read_env()
+    if args.all:
+        for account, key_name in (("primary", "VAPI_API_KEY"), ("spare", "VAPI_API_KEY2"), ("third", "VAPI_API_KEY3")):
+            if env.get(key_name):
+                vapi_sync(dict(env, VAPI_ACCOUNT=account), args.check)
+                env = read_env()  # a newly created assistant ID was just saved
+        if env.get("BOLNA_API_KEY"):
+            bolna_sync(env, args.check)
+        return
     platform = (args.platform or env.get("PLATFORM") or "vapi").lower()
     if platform == "vapi":
         vapi_sync(env, args.check)

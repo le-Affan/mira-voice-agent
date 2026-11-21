@@ -13,7 +13,7 @@ Mira phones a customer who enquired about **Mahima Palm Springs** (a premium gat
 | `scripts/sync.py` | Creates or updates Mira on the chosen platform, then checks the live agent matches the files. |
 | `tests/test_cases.md` | Test cases and results from the real test runs. |
 | `tests/cases.json` | The same test cases in machine-readable form. |
-| `tests/run_evals.py` | Runs the cases for real on Vapi Evals (live model, scripted customer, AI judge). |
+| `tests/run_evals.py` | Runs the cases for real on Vapi Evals (live model, scripted customer, AI judge plus exact text checks). |
 | `tests/results/` | Saved results of every test run, plus a cost ledger. |
 | `recordings/` | Call recordings. |
 
@@ -22,7 +22,7 @@ Mira phones a customer who enquired about **Mahima Palm Springs** (a premium gat
 Copy `.env.example` to `.env` and fill in the values. `.env` is never committed.
 
 - `PLATFORM`: `vapi` or `bolna`.
-- `VAPI_API_KEY` (private key), plus an optional spare account in `VAPI_API_KEY2`. `VAPI_ACCOUNT=auto` uses the main key and falls back to the spare one if the main key fails; set it to `spare` to force the spare account (for example when the main account is out of credits).
+- `VAPI_API_KEY` (private key), plus an optional spare account in `VAPI_API_KEY2` and a third (test) account in `VAPI_API_KEY3`. `VAPI_ACCOUNT=auto` uses the main key and falls back to the spare one if the main key fails; set it to `spare` to force the spare account (for example when the main account is out of credits).
 - `BOLNA_API_KEY`.
 - Agent IDs (`VAPI_ASSISTANT_ID`, `VAPI_ASSISTANT_ID2`, `BOLNA_AGENT_ID`) are written by the sync script the first time it creates an agent.
 
@@ -31,6 +31,7 @@ Copy `.env.example` to `.env` and fill in the values. `.env` is never committed.
 ```
 python3 scripts/sync.py            # deploy to the platform in PLATFORM
 python3 scripts/sync.py --check    # only check the live agent against the files
+python3 scripts/sync.py --all      # every agent: Vapi main, spare and third, then Bolna
 ```
 
 Change `PLATFORM` in `.env` to switch between Vapi and Bolna, then run the same command. Python 3 only, no extra packages.
@@ -40,11 +41,11 @@ On Vapi the script also deletes any stale dashboard draft (the dashboard keeps i
 ## Tests
 
 ```
-python3 tests/run_evals.py --set tuning     # or --set heldout, --set all, --ids T01,T05
+python3 tests/run_evals.py --set all        # the 50-case suite; or --set tuning, heldout, fresh, --ids T01,T05
 python3 tests/run_evals.py --set all --dry-run
 ```
 
-Tests run only on the spare Vapi account (`VAPI_API_KEY2`, `VAPI_ASSISTANT_ID2`), never the main one. Each run is saved in `tests/results/` and its cost is added to `tests/results/ledger.json`; `--budget` stops the run before the total spend passes the limit.
+Tests run only on a test Vapi account, never the main one: the third account by default (`VAPI_API_KEY3`, `VAPI_ASSISTANT_ID3`), or `--account spare`. Each run is saved in `tests/results/` and its cost is added to `tests/results/ledger.json` under that account; the run stops before the account's spend passes its limit (`--budget` overrides it).
 
 ## How the voice handles Hindi and English
 

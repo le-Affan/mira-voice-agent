@@ -77,7 +77,63 @@
       "time": "2026-11-21T14:45:35+00:00",
       "cases": 10,
       "cost": 0.0932
+    },
+    {
+      "label": "k3_baseline",
+      "account": "third",
+      "time": "2026-11-21T14:54:10+00:00",
+      "cases": 50,
+      "cost": 0.5447
+    },
+    {
+      "label": "k3_round1",
+      "account": "third",
+      "time": "2026-11-21T14:57:57+00:00",
+      "cases": 50,
+      "cost": 0.5558
+    },
+    {
+      "label": "k3_round2",
+      "account": "third",
+      "time": "2026-11-21T15:01:36+00:00",
+      "cases": 50,
+      "cost": 0.5852
+    },
+    {
+      "label": "k3_round3",
+      "account": "third",
+      "time": "2026-11-21T15:04:53+00:00",
+      "cases": 50,
+      "cost": 0.622
+    },
+    {
+      "label": "k3_round4",
+      "account": "third",
+      "time": "2026-11-21T15:08:28+00:00",
+      "cases": 50,
+      "cost": 0.6082
+    },
+    {
+      "label": "k3_final",
+      "account": "third",
+      "time": "2026-11-21T15:11:19+00:00",
+      "cases": 50,
+      "cost": 0.6426
+    },
+    {
+      "label": "k3_fresh",
+      "account": "third",
+      "time": "2026-11-21T15:12:15+00:00",
+      "cases": 15,
+      "cost": 0.1734
+    },
+    {
+      "label": "k3_flaky3",
+      "account": "third",
+      "time": "2026-11-21T15:12:31+00:00",
+      "cases": 6,
+      "cost": 0.0556
     }
   ],
-  "total": 2.2001
+  "total": 5.9876
 }

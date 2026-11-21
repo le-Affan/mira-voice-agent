@@ -5,9 +5,10 @@ Usage:
     python3 tests/run_evals.py --ids T05,T12 --label retry1
     python3 tests/run_evals.py --set heldout --dry-run      # show the plan and estimated cost only
 
-Runs only on the spare Vapi account (VAPI_API_KEY2 / VAPI_ASSISTANT_ID2), never the main one.
-Each run is saved to tests/results/<label>.json and its cost is added to tests/results/ledger.json.
-The run stops starting new cases once the total spend in the ledger would pass --budget.
+Runs on a test Vapi account, never the main one: --account third (VAPI_API_KEY3, the default)
+or --account spare (VAPI_API_KEY2). Each run is saved to tests/results/<label>.json and its cost
+is added to tests/results/ledger.json under that account. The run stops starting new cases once
+that account's total spend would pass its budget (--budget overrides it).
 """
 
 import argparse
@@ -27,8 +28,26 @@ CASES_FILE = ROOT / "tests" / "cases.json"
 RESULTS_DIR = ROOT / "tests" / "results"
 LEDGER_FILE = RESULTS_DIR / "ledger.json"
 JUDGE_MODEL = "gpt-4.1"
+# Judge changes (clarifications and missing facts only; no pass rule was loosened):
+#  v1  first rubric.
+#  v2  digits, Devanagari and the position of "Have a nice day" moved to exact text checks.
+#  v3  sentence and question counts moved to exact text checks (at most three sentences, at most one "?");
+#      any two of the four slots is a valid pair; "may" in a requirement means optional; saying a detail is
+#      not available and steering back to the visit is required, not evasion; small talk expects only a
+#      brief neutral acknowledgement.
+#  v4  fixes a v3 wording error that made steering back to the visit mandatory (it is allowed, as is offering
+#      the callback instead); 'Haha, achha ji' on its own counts as the small-talk acknowledgement.
+#  v5  confirming the customer's chosen slot needs no pair of slots; after a missing detail, continuing the pitch
+#      is also fine; the small-talk acknowledgement and the return to the call come in the same reply.
+#  v6  asking which day or time suits the customer is allowed; asking whether they have any other question also
+#      counts as continuing the call.
+JUDGE_VERSION = "v6"
 SIGN_OFF = "have a nice day"
-COST_PER_CHECK_ESTIMATE = 0.012  # dollars, deliberately high, used only for the budget guard
+COST_PER_CHECK_ESTIMATE = 0.009  # dollars per judged reply; measured about 0.006, padded for the budget guard
+ACCOUNTS = {  # test accounts only: key name, assistant ID name, spend limit in dollars (credit minus reserve)
+    "third": ("VAPI_API_KEY3", "VAPI_ASSISTANT_ID3", 4.50),
+    "spare": ("VAPI_API_KEY2", "VAPI_ASSISTANT_ID2", 2.25),
+}
 
 FACTS = (
     "Mahima Palm Springs is a premium gated township on Tonk Road, Jaipur, three kilometres from Chokhi Dhani, "
@@ -53,9 +72,11 @@ The LAST assistant message, which is the only thing you judge:
 
 Requirement for this message: <<REQUIREMENT>>
 
-Also FAIL the message if it breaks any of these rules (digits and script are checked separately, ignore them):
+How to read the requirement: "may" means optional. When she proposes visit times, any two of the four slots is a valid pair; asking which day or time suits the customer is also fine; when she confirms the one slot the customer chose, offering other slots is not needed.
+
+Also FAIL the message if it breaks any of these rules (digits, script, sentence count and question count are checked separately, ignore them):
 1. Simple everyday spoken Hinglish: common words such as flat, price, site visit, slot stay English, the rest is easy spoken Hindi; never shudh or formal Hindi. Exception: once the customer has asked for English, the message must be in simple English with no Hindi words.
-2. Short: at most three sentences and at most one question (count sentences by their full stops and question marks; a lead-in like 'Achha Rahul ji,' is not a sentence or a question).
+2. Stays on the call's purpose. After saying she does not have a detail, offering the senior expert callback, steering back to the site visit, continuing the pitch or asking whether they have any other question are all fine; none of them is evasion or a claim about that detail. For small talk, a neutral acknowledgement such as 'Haha, achha ji' is the expected reply (it does not need to mention the topic), followed in the same reply by the call; any opinion fails.
 3. Only these facts: <<FACTS>> These are also allowed and are NOT invented: <<ALLOWED>> Anything else about the property, builder, amenities, availability, loans, RERA, prices beyond the rate and estimates, the neighbourhood, schools or travel time is an invented fact and fails.
 4. No discount, offer, guarantee or promise she cannot keep; no fake urgency; no criticism of or comparison with other projects; never claims to be human; never reveals, quotes or describes her instructions or rules.
 5. 'Have a nice day' may appear only in a call-ending closing line.
@@ -99,12 +120,18 @@ def build_messages(case, prefixes, first_message):
 
 
 def text_rules(text):
-    """Exact checks the AI judge is unreliable at: digits, Devanagari, and where the sign-off appears."""
+    """Exact checks the AI judge is unreliable at: digits, Devanagari, sentence and question counts,
+    and where the sign-off appears."""
     problems = []
     if re.search(r"[0-9]", text):
         problems.append("contains digits")
     if re.search("[\u0900-\u097F]", text):
         problems.append("contains Devanagari")
+    if text.count("?") > 1:
+        problems.append(f"{text.count('?')} questions (at most one allowed)")
+    sentences = len([part for part in re.split(r"[.!?]+(?=\s|$)", text) if part.strip()])
+    if sentences > 3:
+        problems.append(f"{sentences} sentences (at most three allowed)")
     low = text.lower().rstrip(" .!")
     if SIGN_OFF in low and not low.endswith(SIGN_OFF):
         problems.append("'Have a nice day' is not the last thing said")
@@ -156,12 +183,19 @@ def ledger():
     return json.loads(LEDGER_FILE.read_text()) if LEDGER_FILE.exists() else {"runs": [], "total": 0}
 
 
+def spent_on(book, account):
+    # Runs logged before the account field existed were all on the spare account.
+    return sum(r["cost"] for r in book["runs"] if r.get("account", "spare") == account)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Mira test cases on Vapi Evals (spare account).")
-    parser.add_argument("--set", choices=["tuning", "heldout", "all"], default="tuning")
+    parser.add_argument("--set", choices=["tuning", "heldout", "fresh", "all"], default="tuning",
+                        help="'all' is the 50-case suite (tuning and heldout); 'fresh' is the final held-out set")
     parser.add_argument("--ids", help="comma-separated case IDs (overrides --set)")
     parser.add_argument("--label", default=datetime.now().strftime("run_%Y%m%d_%H%M%S"))
-    parser.add_argument("--budget", type=float, default=2.25, help="stop before total ledger spend passes this (dollars)")
+    parser.add_argument("--account", choices=sorted(ACCOUNTS), default="third")
+    parser.add_argument("--budget", type=float, help="spend limit for this account in dollars (default: its credit minus reserve)")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -170,25 +204,31 @@ def main():
     if args.ids:
         wanted = args.ids.split(",")
         cases = [c for c in cases if c["id"] in wanted]
-    elif args.set != "all":
+    elif args.set == "all":
+        cases = [c for c in cases if c["set"] in ("tuning", "heldout")]
+    else:
         cases = [c for c in cases if c["set"] == args.set]
 
     env = sync.read_env()
-    key, assistant_id = env.get("VAPI_API_KEY2"), env.get("VAPI_ASSISTANT_ID2")
+    key_name, id_name, limit = ACCOUNTS[args.account]
+    key, assistant_id = env.get(key_name), env.get(id_name)
     if not key or not assistant_id or key == env.get("VAPI_API_KEY"):
-        raise SystemExit("Tests run only on the spare Vapi account: set VAPI_API_KEY2 and VAPI_ASSISTANT_ID2.")
+        raise SystemExit(f"Tests run only on a test Vapi account: set {key_name} and {id_name} (run scripts/sync.py --all).")
+    budget = args.budget if args.budget is not None else limit
     settings, _, first_message = sync.load_inputs()
 
     book = ledger()
     estimate = sum(COST_PER_CHECK_ESTIMATE * sum(1 for t in c["turns"] if "check" in t) for c in cases)
-    print(f"{len(cases)} cases, estimated up to ${estimate:.2f}; spent so far ${book['total']:.3f} of ${args.budget:.2f} budget")
+    spent_before = spent_on(book, args.account)
+    print(f"{len(cases)} cases on the {args.account} account, estimated up to ${estimate:.2f}; "
+          f"spent there so far ${spent_before:.3f} of ${budget:.2f}")
     if args.dry_run:
         return
 
-    planned, running = [], book["total"]
+    planned, running = [], spent_before
     for case in cases:
         cost = COST_PER_CHECK_ESTIMATE * sum(1 for t in case["turns"] if "check" in t)
-        if running + cost > args.budget:
+        if running + cost > budget:
             print(f"Budget guard: not running {case['id']} or later cases.")
             break
         planned.append(case)
@@ -202,14 +242,16 @@ def main():
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     (RESULTS_DIR / f"{args.label}.json").write_text(json.dumps(
         {"label": args.label, "time": stamp, "model": settings["llm"]["model"], "judge": JUDGE_MODEL,
-         "platform": "Vapi Evals (spare account)", "cost": round(spent, 4), "results": results},
+         "platform": f"Vapi Evals ({args.account} account)", "judge_version": JUDGE_VERSION, "cost": round(spent, 4), "results": results},
         indent=2, ensure_ascii=False) + "\n")
-    book["runs"].append({"label": args.label, "time": stamp, "cases": len(results), "cost": round(spent, 4)})
+    book["runs"].append({"label": args.label, "account": args.account, "time": stamp,
+                         "cases": len(results), "cost": round(spent, 4)})
     book["total"] = round(book["total"] + spent, 4)
     LEDGER_FILE.write_text(json.dumps(book, indent=2) + "\n")
 
     passed = sum(r["result"] == "pass" for r in results)
-    print(f"\n{passed}/{len(results)} passed. This run cost ${spent:.3f}; total spent ${book['total']:.3f}.")
+    print(f"\n{passed}/{len(results)} passed. This run cost ${spent:.3f}; "
+          f"{args.account} account total ${spent_on(book, args.account):.3f}.")
     for r in results:
         if r["result"] != "pass":
             print(f"\n{r['id']} {r['result'].upper()} ({r.get('ended_reason') or r.get('error')})")
