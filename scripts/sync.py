@@ -11,6 +11,7 @@ Keys and agent IDs live in .env (see .env.example).
 
 import argparse
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -76,6 +77,13 @@ def load_inputs():
     return settings, prompt, first_message
 
 
+def no_devanagari(prompt, first_message, settings):
+    """The voice cannot mix Devanagari with Roman text, so every scripted line must be in English letters."""
+    spoken = [first_message, settings["silence_check_message"]]
+    spoken += re.findall(r'^(?:Mira|English): "(.*)"$', prompt, re.M)
+    return not any(re.search("[\u0900-\u097F]", line) for line in spoken)
+
+
 class Checker:
     def __init__(self):
         self.failures = []
@@ -112,7 +120,8 @@ def vapi_assistant(settings, prompt, first_message):
             # so Mira can never hang up without saying goodbye.
             "tools": [],
         },
-        "voice": {"provider": voice["provider"], "voiceId": voice["voice_id"], "speed": voice["speed"]},
+        "voice": {"provider": voice["provider"], "voiceId": voice["voice_id"],
+                  "model": voice["model"], "language": voice["language"]},
         "endCallPhrases": [sign_off.lower(), "हैव अ नाइस डे"],
         "artifactPlan": {"recordingEnabled": call["recording"]},
         "maxDurationSeconds": call["max_duration_seconds"],
@@ -221,7 +230,10 @@ def vapi_sync(env, check_only):
              and model.get("temperature") == wanted["model"]["temperature"])
     c.expect("no end-call tool (goodbye is always spoken first)", not model.get("tools") and not model.get("toolIds"))
     c.expect("end-call phrase set to the sign-off", settings["sign_off"].lower() in live.get("endCallPhrases", []))
-    c.expect("voice", live.get("voice", {}).get("voiceId") == settings["voice"]["voice_id"])
+    v = live.get("voice", {})
+    c.expect("voice", v.get("voiceId") == settings["voice"]["voice_id"]
+             and v.get("model") == settings["voice"]["model"] and v.get("language") == settings["voice"]["language"])
+    c.expect("spoken text has no Devanagari", no_devanagari(prompt, first_message, settings))
     c.expect("transcriber", live.get("transcriber", {}).get("language") == settings["transcriber"]["language"])
     c.expect("interruption needs 2+ words", live.get("stopSpeakingPlan", {}).get("numWords") == settings["call"]["interruption_min_words"])
     c.expect("max call length", live.get("maxDurationSeconds") == settings["call"]["max_duration_seconds"])
@@ -257,9 +269,10 @@ def bolna_agent(settings, prompt, first_message, language):
                         },
                     },
                     "synthesizer": {
-                        "provider": "azuretts",
-                        "provider_config": {"voice": voice["voice_id"], "model": "neural",
-                                            "language": voice["language"], "speed": voice["speed"]},
+                        "provider": voice["provider"],
+                        "provider_config": {"voice": voice["voice_name"], "voice_id": voice["voice_id"],
+                                            "model": voice["model"], "language": voice["language"],
+                                            "speed": voice["speed"]},
                         "stream": True,
                         "buffer_size": 150,
                         "audio_format": "wav",
@@ -333,7 +346,10 @@ def bolna_sync(env, check_only):
     c.expect("prompt matches file", live_prompt == prompt)
     c.expect("first message matches", live.get("agent_welcome_message") == first_message)
     c.expect("model", tools.get("llm_agent", {}).get("llm_config", {}).get("model") == settings["llm"]["model"])
-    c.expect("voice", tools.get("synthesizer", {}).get("provider_config", {}).get("voice") == settings["voice"]["voice_id"])
+    synth = tools.get("synthesizer", {}).get("provider_config", {})
+    c.expect("voice", synth.get("voice_id") == settings["voice"]["voice_id"]
+             and synth.get("model") == settings["voice"]["model"] and synth.get("language") == settings["voice"]["language"])
+    c.expect("spoken text has no Devanagari", no_devanagari(prompt, first_message, settings))
     c.expect("transcriber", tools.get("transcriber", {}).get("model") == settings["transcriber_bolna"]["model"])
     c.expect("hang up only after the sign-off", task_config.get("hangup_after_LLMCall") is True
              and settings["sign_off"] in (task_config.get("call_cancellation_prompt") or ""))

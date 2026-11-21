@@ -36,7 +36,7 @@ On Vapi the script also deletes any stale dashboard draft (the dashboard keeps i
 
 ## How the voice handles Hindi and English
 
-The prompt is written in Roman Hinglish, as the brief asks. When Mira speaks in Hindi mode she writes Hindi words in Devanagari and English words (flat, price, numbers) in English letters; in English mode she uses English letters only. The voice (Azure `en-IN-AnanyaNeural`, an Indian English voice that also speaks Hindi) can then tell the languages apart, so English words are pronounced in English and Hindi words in Hindi. All numbers, prices, dates and times are spoken as English words.
+Mira speaks only in English letters: Hindi words in Roman Hinglish (exactly like the prompt's lines) and English words as normal English. The voice is Cartesia "Arushi" on the Sonic 3.6 model with language set to Hindi, which Cartesia documents for Hinglish: it reads pure English, Roman Hinglish, and Roman Hindi mixed with English. It does not support mixing Devanagari with Roman Hindi, so the prompt forbids Devanagari and the sync script checks that no spoken line contains it. All numbers, prices, dates and times are spoken as English words.
 
 ## Ending a call
 

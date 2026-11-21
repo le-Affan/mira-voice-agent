@@ -1,7 +1,7 @@
 {
   "agent_name": "Mira",
   "customer_name": "Rahul",
-  "first_message": "Hello, नमस्ते! मैं Mira बोल रही हूँ, Mahima Palm Springs की तरफ़ से। क्या मैं {customer_name} जी से बात कर रही हूँ?",
+  "first_message": "Hello, namaste! Main Mira bol rahi hoon, Mahima Palm Springs ki taraf se. Kya main {customer_name} ji se baat kar rahi hoon?",
   "sign_off": "Have a nice day",
 
   "llm": {
@@ -12,9 +12,11 @@
   },
 
   "voice": {
-    "provider": "azure",
-    "voice_id": "en-IN-AnanyaNeural",
-    "language": "en-IN",
+    "provider": "cartesia",
+    "voice_name": "Arushi",
+    "voice_id": "95d51f79-c397-46f9-b49a-23763d3eaa2d",
+    "model": "sonic-3.6",
+    "language": "hi",
     "speed": 1.0
   },
 
@@ -43,7 +45,7 @@
   },
 
   "silence_check_prompt": "The customer has been silent. Ask once, in the current language mode, whether they can hear you (the silence line from your instructions). One short sentence.",
-  "silence_check_message": "Hello? क्या आप मुझे सुन पा रहे हैं? Can you hear me?",
+  "silence_check_message": "Hello? Kya aap mujhe sun pa rahe hain? Can you hear me?",
   "silence_end_prompt": "The customer is still silent. Say the unclear line closing from your instructions, in the current language mode, ending with: Have a nice day.",
 
   "hangup_check_prompt": "You decide whether this phone call is over. The call is over only if the assistant's most recent message ends with the sign-off \"Have a nice day\". In every other case, including when the customer has just said yes, okay, thank you or bye, the call is not over.",
