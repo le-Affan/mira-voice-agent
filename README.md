@@ -87,6 +87,6 @@ python3 tests/run_evals.py --ids T01,T05         # specific cases
 python3 tests/run_evals.py --set all --dry-run   # show the plan and estimated cost
 ```
 
-Tests only run on a test Vapi account (`--account third` by default, or `--account spare`), never the main one. Results go to `tests/results/`, which is not committed.
+Tests only run on a test Vapi account (`--account third` by default, or `--account spare`), never the main one. Results go to `tests/results/`. Only the results of the final run on the current prompt are committed: `final_run.json` (main suite, 42 of 50 passed) and `final_fresh_run.json` (held-back cases, 14 of 15 passed).
 
 The tests are text only, so they don't cover voice quality, pronunciation, speech-to-text on real audio or interruptions. Those still need real calls.

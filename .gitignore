@@ -1,4 +1,6 @@
 .env
 __pycache__/
 docs/
-tests/results/
+tests/results/*
+!tests/results/final_run.json
+!tests/results/final_fresh_run.json
