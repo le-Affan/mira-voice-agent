@@ -44,9 +44,9 @@
     "recording": true
   },
 
-  "silence_check_prompt": "The customer has been silent. Ask once, in the current language mode, whether they can hear you (the silence line from your instructions). One short sentence.",
-  "silence_check_message": "Hello? Kya aap mujhe sun pa rahe hain? Can you hear me?",
-  "silence_end_prompt": "The customer is still silent. Say the unclear line closing from your instructions, in the current language mode, ending with: Have a nice day.",
+  "silence_check_prompt": "The customer has been silent. Ask once whether they can hear you, using the silence line from your instructions. One short sentence.",
+  "silence_check_message": "Hello, kya aap mujhe sun pa rahe hain?",
+  "silence_end_prompt": "The customer is still silent. Say the unclear-line closing from your instructions, ending with: Have a nice day.",
 
   "hangup_check_prompt": "You decide whether this phone call is over. The call is over only if the assistant's most recent message ends with the sign-off \"Have a nice day\". In every other case, including when the customer has just said yes, okay, thank you or bye, the call is not over.",
 

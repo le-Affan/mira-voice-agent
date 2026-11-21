@@ -2,7 +2,7 @@
 
 Mira: a voice AI agent that calls property enquiry leads, pitches flats in Hinglish, and books site visits.
 
-Mira phones a customer who enquired about **Mahima Palm Springs** (a premium gated township on Tonk Road, Jaipur) through a Facebook ad. She checks the name, asks whether the customer prefers Hindi or English, confirms it is a good time, gives a short pitch, books a site visit in one of four daily slots, and ends the call politely. She only uses the project facts she was given; anything else gets a senior expert callback.
+Mira phones a customer who enquired about **Mahima Palm Springs** (a premium gated township on Tonk Road, Jaipur) through a Facebook ad. She speaks Hinglish (simple English if the customer insists), checks the name, confirms it is a good time, gives a short pitch, books a site visit in one of four daily slots, and ends the call politely. She only uses the project facts she was given; anything else gets a senior expert callback.
 
 ## Layout
 
@@ -11,7 +11,10 @@ Mira phones a customer who enquired about **Mahima Palm Springs** (a premium gat
 | `prompt/mira_prompt.md` | The prompt: background, global rules, guardrails, call script, FAQs. Used on every platform. |
 | `config/settings.json` | Everything else: voice, transcriber, model, first message, call limits, silence and interruption behaviour. |
 | `scripts/sync.py` | Creates or updates Mira on the chosen platform, then checks the live agent matches the files. |
-| `tests/test_cases.md` | Test cases and results. |
+| `tests/test_cases.md` | Test cases and results from the real test runs. |
+| `tests/cases.json` | The same test cases in machine-readable form. |
+| `tests/run_evals.py` | Runs the cases for real on Vapi Evals (live model, scripted customer, AI judge). |
+| `tests/results/` | Saved results of every test run, plus a cost ledger. |
 | `recordings/` | Call recordings. |
 
 ## Keys
@@ -33,6 +36,15 @@ python3 scripts/sync.py --check    # only check the live agent against the files
 Change `PLATFORM` in `.env` to switch between Vapi and Bolna, then run the same command. Python 3 only, no extra packages.
 
 On Vapi the script also deletes any stale dashboard draft (the dashboard keeps its own saved copy and would otherwise test an old prompt). Close the Mira tab in the Vapi dashboard before syncing and reload it afterwards.
+
+## Tests
+
+```
+python3 tests/run_evals.py --set tuning     # or --set heldout, --set all, --ids T01,T05
+python3 tests/run_evals.py --set all --dry-run
+```
+
+Tests run only on the spare Vapi account (`VAPI_API_KEY2`, `VAPI_ASSISTANT_ID2`), never the main one. Each run is saved in `tests/results/` and its cost is added to `tests/results/ledger.json`; `--budget` stops the run before the total spend passes the limit.
 
 ## How the voice handles Hindi and English
 

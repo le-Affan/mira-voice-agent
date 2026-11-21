@@ -80,7 +80,7 @@ def load_inputs():
 def no_devanagari(prompt, first_message, settings):
     """The voice cannot mix Devanagari with Roman text, so every scripted line must be in English letters."""
     spoken = [first_message, settings["silence_check_message"]]
-    spoken += re.findall(r'^(?:Mira|English): "(.*)"$', prompt, re.M)
+    spoken += re.findall(r'^Mira: "(.*)"$', prompt, re.M)
     return not any(re.search("[\u0900-\u097F]", line) for line in spoken)
 
 

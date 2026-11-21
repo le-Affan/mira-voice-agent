@@ -1,0 +1,32 @@
+{
+  "label": "smoke4",
+  "time": "2026-11-21T14:16:36+00:00",
+  "model": "gpt-4.1",
+  "judge": "gpt-4.1",
+  "platform": "Vapi Evals (spare account)",
+  "cost": 0.0104,
+  "results": [
+    {
+      "id": "T12",
+      "set": "tuning",
+      "run_id": "719cf1d3-e3a3-4bef-bc12-f1108b8f7c29",
+      "result": "pass",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.010446,
+      "checks": [
+        {
+          "customer": "1700 square feet ka kitna padega?",
+          "mira": "Ji, seventeen hundred square feet ka andaazan price around ninety-four lakh rupees banta hai. Yeh sirf estimate hai. Aur koi sawaal hai?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Aur 2619 wala?",
+          "mira": "Ji, twenty-six hundred and nineteen square feet ka andaazan price around one crore forty-four lakh rupees banta hai. Yeh bhi sirf estimate hai. Aur kuch poochhna hai?",
+          "status": "pass",
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

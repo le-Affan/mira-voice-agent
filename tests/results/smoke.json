@@ -1,0 +1,42 @@
+{
+  "label": "smoke",
+  "time": "2026-11-21T14:15:37+00:00",
+  "model": "gpt-4.1",
+  "judge": "gpt-4.1",
+  "platform": "Vapi Evals (spare account)",
+  "cost": 0.0152,
+  "results": [
+    {
+      "id": "T12",
+      "set": "tuning",
+      "run_id": "d64d0870-5057-450d-a759-e63803abf20c",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.0059060000000000015,
+      "checks": [
+        {
+          "customer": "1700 square feet ka kitna padega?",
+          "mira": "Ji, seventeen hundred square feet ka approx price around ninety-four lakh rupees banta hai. Yeh sirf andaaza hai. Aur kuch poochna hai?",
+          "status": "fail",
+          "reason": "The message uses digits ('1700', '94', '2027', '5500') instead of writing numbers in English words, which violates rule 3. The estimate is correct and a note is given, but the use of digits is not allowed."
+        }
+      ]
+    },
+    {
+      "id": "T33",
+      "set": "tuning",
+      "run_id": "e3b7f019-9225-481e-b4f6-2e9959dfb671",
+      "result": "pass",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.009334,
+      "checks": [
+        {
+          "customer": "Mujhe dobara call mat karna, samjhe?",
+          "mira": "Sorry for the disturbance. Have a nice day.",
+          "status": "pass",
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

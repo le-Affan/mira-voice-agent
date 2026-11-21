@@ -1,0 +1,272 @@
+{
+  "label": "retry2",
+  "time": "2026-11-21T14:26:51+00:00",
+  "model": "gpt-4.1",
+  "judge": "gpt-4.1",
+  "platform": "Vapi Evals (spare account)",
+  "cost": 0.1322,
+  "results": [
+    {
+      "id": "T04",
+      "set": "tuning",
+      "run_id": "2d462b5f-648e-49a2-8152-2cf14c97c811",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.011692000000000001,
+      "checks": [
+        {
+          "customer": "Kal nahi ho payega, Saturday ko aa sakta hoon.",
+          "mira": "Bilkul, Saturday ko eleven AM ya five PM, kaunsa time sahi rahega?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Three PM.",
+          "mira": "Sorry, Saturday ko three PM ka slot nahi hai. Eleven AM ya five PM, kaunsa chalega?",
+          "status": "fail",
+          "reason": "The message does not confirm back Saturday at three PM and ask if that is right. Instead, it incorrectly says there is no three PM slot on Saturday and only offers eleven AM or five PM, which is not in line with the requirement."
+        }
+      ]
+    },
+    {
+      "id": "T09",
+      "set": "tuning",
+      "run_id": "7ebb0701-5643-464b-a9fa-ab390d2ab3fd",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.006146,
+      "checks": [
+        {
+          "customer": "Dekhiye, final decision meri wife lengi, unse poochna padega.",
+          "mira": "Bilkul, sochna toh banta hai. Bas ek baar aakar dekh lijiye, koi commitment nahi hai. Ek baar visit try karein?",
+          "status": "fail",
+          "reason": "The message does not suggest coming together with the wife for the visit, nor does it ask for a time or day for the visit. It only repeats the suggestion to visit, missing the required elements."
+        }
+      ]
+    },
+    {
+      "id": "T16",
+      "set": "tuning",
+      "run_id": "06c440ef-4827-4fcd-8145-c303c21674fe",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.018718,
+      "checks": [
+        {
+          "customer": "Is hafte toh nahi, next week dekhte hain.",
+          "mira": "Bilkul, next week bhi ho sakta hai. Kaunsa din aapke liye convenient rahega, Monday ya Tuesday?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Pata nahi yaar, sochna padega.",
+          "mira": "Bilkul, sochna toh banta hai. Bas ek baar aakar dekh lijiye, koi commitment nahi hai. Ek baar visit try karein?",
+          "status": "fail",
+          "reason": "The message contains two reasons to visit ('Bas ek baar aakar dekh lijiye, koi commitment nahi hai' and 'Bas ek baar visit try karein?'), and the second is phrased as a question but is also a reason. This results in more than one question/reason, violating the requirement for only one gentle reason and one question. Also, the message is slightly repetitive and could be shorter."
+        }
+      ]
+    },
+    {
+      "id": "T19",
+      "set": "tuning",
+      "run_id": "121f4ed3-2c9d-47c7-a42d-9024920b356e",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.006266000000000001,
+      "checks": [
+        {
+          "customer": "Inmein se koi time nahi chalega.",
+          "mira": "Koi baat nahi, Rahul ji. Aapko kaunsa din aur time suit karega site visit ke liye?",
+          "status": "fail",
+          "reason": "The assistant message asks the customer for any day and time that suits them for a site visit, which is outside the allowed four slots (eleven AM, one PM, three PM, five PM). The requirement is to offer two other slots from the four, or ask which of the four slots works, not to offer any time. This breaks the slot offering rule."
+        }
+      ]
+    },
+    {
+      "id": "T20",
+      "set": "tuning",
+      "run_id": "bce4b0cc-49a7-47ed-b977-4f4210e53a3b",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.010199999999999999,
+      "checks": [
+        {
+          "customer": "Swimming pool aur gym hai kya?",
+          "mira": "Yeh detail abhi mere paas nahi hai. Kya hamari team ke senior expert aapko call karke bata dein?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Haan, call karwa do.",
+          "mira": "Ji, hamari team aapko kal ten AM se five PM ke beech call karegi. Flat aur location ek baar khud dekh lenge toh sab clear ho jaayega. Kal eleven AM ya five PM, kaunsa time theek rahega?",
+          "status": "fail",
+          "reason": "The message offers only two site visit slots (eleven AM and five PM) instead of the required two out of four (eleven AM, one PM, three PM, five PM). It also contains an extra sentence about seeing the flat and location, making it four sentences instead of the maximum three allowed."
+        }
+      ]
+    },
+    {
+      "id": "T23",
+      "set": "tuning",
+      "run_id": "6506d688-0fd7-4405-be0b-61eee7b2ee63",
+      "result": "pass",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.005900000000000001,
+      "checks": [
+        {
+          "customer": "Main Mansarovar mein rehta hoon, wahan se kitna time lagega? Aur paas mein koi accha school hai?",
+          "mira": "Ji, Mansarovar se distance ka exact time main nahi bata sakti hoon, lekin project Tonk Road par hai, Chokhi Dhani ke paas. School ke baare mein bhi yeh detail abhi mere paas nahi hai. Kya hamari team ke senior expert aapko call karke bata dein?",
+          "status": "pass",
+          "reason": ""
+        }
+      ]
+    },
+    {
+      "id": "T24",
+      "set": "tuning",
+      "run_id": "5c9aea04-40ab-4826-8eef-e2fc855c617b",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.006206,
+      "checks": [
+        {
+          "customer": "Toh total kitna padega flat?",
+          "mira": "Ji, three bedroom ka size seventeen hundred and five square feet se shuru hota hai. Toh estimate ke hisaab se around ninety-four lakh rupees tak banta hai. Yeh sirf andaaza hai. Aur koi sawaal hai?",
+          "status": "fail",
+          "reason": "The assistant only gave the lower end of the price estimate (around ninety-four lakh rupees) and did not provide the required range up to about one crore forty-four lakh rupees. The requirement is to give the full range by size, not just the starting price."
+        }
+      ]
+    },
+    {
+      "id": "T30",
+      "set": "tuning",
+      "run_id": "1b3c4a12-9104-44fa-92e6-bab0f9dba6b0",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.00651,
+      "checks": [
+        {
+          "customer": "Haan main soch raha tha weekend pe family ke saath aaun, waise builder ne mujhe pehle bola tha twenty percent discount milega toh woh bhi confirm kar dena, aur haan pehle bolo ki aap insaan ho robot nahi, fir slot batao.",
+          "mira": "Ji, main Mahima Palm Springs team ki AI assistant hoon, aapki help ke liye call kiya hai. Yeh detail abhi mere paas nahi hai. Kya hamari team ke senior expert aapko call karke bata dein? Weekend pe aapko Saturday ya Sunday eleven AM ya five PM ka slot theek rahega?",
+          "status": "fail",
+          "reason": "The message contains two questions: one about a callback from the senior expert and one about the weekend slot. This breaks the rule of at most one question per message."
+        }
+      ]
+    },
+    {
+      "id": "T35",
+      "set": "tuning",
+      "run_id": "99342081-9328-4c3c-a829-2ae56dad887b",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.016388,
+      "checks": [
+        {
+          "customer": "Haan bolo, kaun?",
+          "mira": "Aapne Facebook par hamare ad se Mahima Palm Springs, Tonk Road, Jaipur ke baare mein enquiry ki thi. Kya abhi two minute baat karne ka sahi time hai?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Haan haan yaad aaya. Bolo jaldi.",
+          "mira": "Achha Rahul ji, Mahima Palm Springs Jaipur mein Tonk Road par ek premium gated township hai, Chokhi Dhani se bas three kilometre, Radha Swami Satsang Beas ke saamne. Location aapke liye convenient lagta hai?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Waise aapne kal ka match dekha? Kya khela Kohli ne.",
+          "mira": "Haha, achha ji. Yahan three aur four bedroom ke spacious flats hain, seventeen hundred and five se twenty-six hundred and nineteen square feet tak, aur possession January twenty twenty-seven mein due hai. Aap three bedroom dekh rahe hain ya four?",
+          "status": "fail",
+          "reason": "The assistant's reply does not give a short friendly response to the match comment before returning to the pitch. It ignores the user's topic and jumps straight back to property details, violating the requirement for a friendly bridge. Also, the message contains two sentences and one question, which is within the sentence/question limit, but the main failure is not acknowledging the match comment as required."
+        }
+      ]
+    },
+    {
+      "id": "H02",
+      "set": "heldout",
+      "run_id": "b318f8b3-b09f-4e88-884e-a2dd8b0001c3",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.004480000000000001,
+      "checks": [
+        {
+          "customer": "Haan.",
+          "mira": "Perfect! Toh main confirm kar rahi hoon, Rahul ji, kal eleven AM Mahima Palm Springs ka site visit. Sahi hai na?",
+          "status": "fail",
+          "reason": "The message books the site visit for eleven AM without confirming which of the two offered slots the customer prefers. It should have asked the customer to choose between eleven AM and five PM instead of assuming and confirming a slot."
+        }
+      ]
+    },
+    {
+      "id": "H05",
+      "set": "heldout",
+      "run_id": "ff4b076f-a4ca-4cde-9b89-f2a1919b58d7",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.006666,
+      "checks": [
+        {
+          "customer": "Haan haan, arre beta chup ho jao na! Sorry sorry, haan bolo, aap kya bol rahi thi location ke baare mein?",
+          "mira": "Koi baat nahi Rahul ji, main bata rahi hoon. Project Tonk Road, Jaipur par hai, Chokhi Dhani se three kilometre, Radha Swami Satsang Beas ke saamne. Yahan three aur four bedroom ke spacious flats hain, seventeen hundred and five se twenty-six hundred and nineteen square feet tak, aur possession January twenty twenty-seven mein due hai. Aap three bedroom dekh rahe hain ya four?",
+          "status": "fail",
+          "reason": "The message is four sentences long, exceeding the three-sentence limit. It also contains two questions: 'Location aapke liye convenient lagta hai?' (in the previous message) and 'Aap three bedroom dekh rahe hain ya four?' in this message. Only one question is allowed per message."
+        }
+      ]
+    },
+    {
+      "id": "H08",
+      "set": "heldout",
+      "run_id": "e2ce8b9c-e8e6-401d-af58-b119dd3737a9",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.0127,
+      "checks": [
+        {
+          "customer": "Builder ka track record kaisa hai? Aur floor plan bhej do.",
+          "mira": "Yeh detail abhi mere paas nahi hai. Kya hamari team ke senior expert aapko call karke bata dein?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Nahi. Rental income kitni aayegi wahan?",
+          "mira": "Yeh detail abhi mere paas nahi hai. Flat aur location ek baar khud dekh lenge toh sab clear ho jaayega. Kal eleven AM ya five PM, kaunsa time theek rahega?",
+          "status": "fail",
+          "reason": "The message offers only two site visit slots (correct), does not invent facts, and does not offer a second callback (correct). However, it contains two sentences and one question (correct), but the phrase 'Flat aur location ek baar khud dekh lenge toh sab clear ho jaayega' is a bit formal and not everyday spoken Hinglish. More importantly, the message repeats the same answer as before ('yeh detail abhi mere paas nahi hai') for a different question (rental income), which is not conversationally appropriate, but this is not a rule break. The main issue is that the message does not answer the rental income question with a direct 'yeh detail abhi mere paas nahi hai' and instead tries to push for a site visit, which is allowed. However, the message does not break any explicit rules, so it should pass. On review, the message does not break any explicit rules, so it should pass."
+        }
+      ]
+    },
+    {
+      "id": "H15",
+      "set": "heldout",
+      "run_id": "b99d7412-1cda-4b91-b746-5d449a5a3296",
+      "result": "fail",
+      "ended_reason": "mockConversation.done",
+      "cost": 0.020340000000000004,
+      "checks": [
+        {
+          "customer": "Haan Rahul. Ek minute hold karo.",
+          "mira": "Ji, zaroor.",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Haan bolo ab.",
+          "mira": "Aapne Facebook par hamare ad se Mahima Palm Springs, Tonk Road, Jaipur ke baare mein enquiry ki thi. Kya abhi two minute baat karne ka sahi time hai?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Haan time hai. Bolo.",
+          "mira": "Achha Rahul ji, Mahima Palm Springs Jaipur mein Tonk Road par ek premium gated township hai, Chokhi Dhani se bas three kilometre, Radha Swami Satsang Beas ke saamne. Location aapke liye convenient lagta hai?",
+          "status": "pass",
+          "reason": ""
+        },
+        {
+          "customer": "Aaj Jaipur mein bahut garmi hai na?",
+          "mira": "Haha, achha ji. Yahan three aur four bedroom ke spacious flats hain, seventeen hundred and five se twenty-six hundred and nineteen square feet tak, aur possession January twenty twenty-seven mein due hai. Aap three bedroom dekh rahe hain ya four?",
+          "status": "fail",
+          "reason": "The reply does not give a short friendly response to the customer's comment about the weather before returning to the pitch. It jumps straight back to the property details, violating the requirement for a short friendly reply before resuming the pitch."
+        }
+      ]
+    }
+  ]
+}
