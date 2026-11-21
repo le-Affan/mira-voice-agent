@@ -4,7 +4,7 @@ Mira is a voice agent that calls people who enquired about Mahima Palm Springs, 
 
 ## Demo
 
-[![Mira demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[![Mira demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)]([https://www.youtube.com/watch?v=YOUR_VIDEO_ID](https://youtu.be/MINxNsXnHMI))
 
 <!-- Replace YOUR_VIDEO_ID in both places with the YouTube video ID. -->
 
